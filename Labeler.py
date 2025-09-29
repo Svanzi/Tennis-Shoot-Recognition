@@ -10,7 +10,7 @@ DOWN_KEYS  = {84, 2621440}  # backhand
 SPACEBAR   = 32             # serve
 ESCAPE     = 27             # exit
 
-def draw_legend(frame, user_input):
+def draw_legend(frame, user_input, total_frames):
     legend = [
         "LEGEND:",
         "LEFT ARROW : Go back 5 frames",
@@ -27,11 +27,13 @@ def draw_legend(frame, user_input):
         y = y0 + i * dy
         cv2.putText(frame, line, (x,y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 3, cv2.LINE_AA) # black border
         cv2.putText(frame, line, (x,y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA) # white legend text
+    
+    y_frame = y0 + len(legend) * dy
+    cv2.putText(frame, f"CURRENT FRAME: {int(cap.get(cv2.CAP_PROP_POS_FRAMES))}/{total_frames}", (x,y_frame), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA) # white frame counter  
 
     if user_input:
         y_log = y0 + len(legend) * dy + 20
-        cv2.putText(frame, user_input, (x,y_log), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1, cv2.LINE_AA) # white user input log
-        
+        cv2.putText(frame, user_input, (x,y_log), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2, cv2.LINE_AA) # white user input log
     
     return frame
 
@@ -96,10 +98,13 @@ if __name__ == "__main__":
 
         frame_id += 1
 
-        frame = draw_legend(frame, f"USER INPUT LOG: {user_log}")
+        frame = draw_legend(frame, f"USER INPUT LOG: {user_log}", total_frames)
 
         cv2.imshow("Frame", frame)
 
-    out_file = f"annotation_{Path(args.video).stem}.csv"
+    out_dir = Path("Shots Annotation")
+    out_dir.mkldir(exist_ok=True)
+    out_file = out_dir / f"annotation_{Path(args.video).stem}.csv"
+    
     df.to_csv(out_file, index=False)
     print(f"Annotation file was written to {out_file}")
