@@ -10,6 +10,31 @@ DOWN_KEYS  = {84, 2621440}  # backhand
 SPACEBAR   = 32             # serve
 ESCAPE     = 27             # exit
 
+def draw_legend(frame, user_input):
+    legend = [
+        "LEGEND:",
+        "LEFT ARROW : Go back 5 frames",
+        "RIGHT ARROW : Go forward 5 frames",
+        "UP ARROW : Annotate Forehand",
+        "DOWN ARROW : Annotate Backhand",
+        "SPACE : Annotate Serve",
+        "ESC : Exit and save annotations"
+    ]
+
+    x, y0, dy = 10, 20, 20
+
+    for i, line in enumerate(legend):
+        y = y0 + i * dy
+        cv2.putText(frame, line, (x,y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 3, cv2.LINE_AA) # black border
+        cv2.putText(frame, line, (x,y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA) # white legend text
+
+    if user_input:
+        y_log = y0 + len(legend) * dy + 20
+        cv2.putText(frame, user_input, (x,y_log), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1, cv2.LINE_AA) # white user input log
+        
+    
+    return frame
+
 if __name__ == "__main__":
     parser = ArgumentParser(
         description="Annotate a video and write a csv file containing tennis shots"
@@ -29,6 +54,8 @@ if __name__ == "__main__":
 
     shots_list = []
 
+    user_log = ""
+    
     while cap.isOpened():
         frame_id = max(0, min(frame_id, max(0, total_frames - 1)))
         cap.set(cv2.CAP_PROP_POS_FRAMES, frame_id)
@@ -38,33 +65,40 @@ if __name__ == "__main__":
         if not ret:
             print("End of video reached")
             break 
-
-
-        cv2.imshow("Frame", frame)
+        
         k = cv2.waitKeyEx(30)
 
         if k in LEFT_KEYS:
-            frame_id -= 1
+            frame_id -= 5
+            print("Going back 5 frames")
             continue
         elif k in RIGHT_KEYS:
-            frame_id += 1
+            frame_id += 5
+            print("Going forward 5 frames")
             continue
         elif k in UP_KEYS:
             shots_list.append({"Shot": "Forehand", "Frame": frame_id})
             df = pd.DataFrame.from_records(shots_list)
+            user_log = "Added Forehand at frame {}".format(frame_id)
             print("Added Forehand at frame", frame_id)
         elif k in DOWN_KEYS:
             shots_list.append({"Shot": "Backhand", "Frame": frame_id})
             df = pd.DataFrame.from_records(shots_list)
+            user_log = "Added Backhand at frame {}".format(frame_id)
             print("Added Backhand at frame", frame_id)
         elif k == SPACEBAR:
             shots_list.append({"Shot": "Serve", "Frame": frame_id})
             df = pd.DataFrame.from_records(shots_list)
+            user_log = "Added Serve at frame {}".format(frame_id)
             print("Added Serve at frame", frame_id)
         elif k == ESCAPE:
             break
 
         frame_id += 1
+
+        frame = draw_legend(frame, f"USER INPUT LOG: {user_log}")
+
+        cv2.imshow("Frame", frame)
 
     out_file = f"annotation_{Path(args.video).stem}.csv"
     df.to_csv(out_file, index=False)
