@@ -103,8 +103,8 @@ if __name__ == "__main__":
         cv2.imshow("Frame", frame)
 
     out_dir = Path("Shots Annotation")
-    out_dir.mkldir(exist_ok=True)
-    out_file = out_dir / f"annotation_{Path(args.video).stem}.csv"
+    out_dir.mkdir(exist_ok=True)
+    out_file = out_dir / f"{Path(args.video).stem}_Labeled.csv"
     
     df.to_csv(out_file, index=False)
     print(f"Annotation file was written to {out_file}")
