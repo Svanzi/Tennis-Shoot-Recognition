@@ -8,6 +8,17 @@ import mediapipe as mp
 from mediapipe.python.solutions.pose import PoseLandmark
 from tqdm import tqdm
 
+##########################################################################################################
+# Script to annotate a video with body-only landmarks using MediaPipe Pose,
+# and export a CSV file with the landmark coordinates per frame.
+# Usage:
+#   python Landmarker.py input_video.mp4
+# Outputs:
+#   - Annotated video in ./Landmarked/input_video_Landmarked.mp4 
+#   - CSV file with landmark coordinates in ./Landmarked/input_video_Landmarked.csv
+##########################################################################################################
+
+
 # --------- Constants & Types ---------
 # OpenCV uses BGR color order (NOT RGB).
 ColorBGR = Tuple[int, int, int]

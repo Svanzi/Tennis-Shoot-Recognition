@@ -3,6 +3,16 @@ from pathlib import Path
 import pandas as pd
 import cv2
 
+##########################################################################################################
+# Script to annotate a video with tennis shots (Forehand, Backhand, Serve),
+# and export a CSV file with the annotations.
+# Usage:
+#   python Labeler.py input_video.mp4
+# Outputs:
+#   - CSV file with annotations in ./Shots Annotation/input_video_Labeled.csv
+##########################################################################################################
+
+
 LEFT_KEYS  = {81, 2424832}  # frame back
 UP_KEYS    = {82, 2490368}  # forehand
 RIGHT_KEYS = {83, 2555904}  # frame forward
